@@ -234,6 +234,115 @@ async def stats(message: Message):
 
 
 # ======================================
+# ОДОБРЕНИЕ ЗАЯВКИ
+# ======================================
+
+@dp.callback_query(F.data.startswith("approve_"))
+async def approve_order(callback: CallbackQuery):
+
+    if callback.from_user.id != ADMIN_ID:
+        return
+
+
+    order_id = int(
+        callback.data.split("_")[1]
+    )
+
+
+    order = get_order(order_id)
+
+
+    if not order:
+        await callback.answer(
+            "Заявка не найдена"
+        )
+        return
+
+
+    update_status(
+        order_id,
+        "Одобрено"
+    )
+
+
+    user_id = order[1]
+
+
+    await bot.send_message(
+        user_id,
+        "✅ Ваша заявка одобрена!\n\n"
+        "Ожидайте выдачи криптовалюты."
+    )
+
+
+    await callback.message.edit_caption(
+        caption=(
+            callback.message.caption
+            + "\n\n"
+            "✅ ЗАЯВКА ОДОБРЕНА"
+        )
+    )
+
+
+    await callback.answer()
+
+
+# ======================================
+# ОТКЛОНЕНИЕ ЗАЯВКИ
+# ======================================
+
+@dp.callback_query(F.data.startswith("reject_"))
+async def reject_order(callback: CallbackQuery):
+
+    if callback.from_user.id != ADMIN_ID:
+        return
+
+
+    order_id = int(
+        callback.data.split("_")[1]
+    )
+
+
+    order = get_order(order_id)
+
+
+    if not order:
+        await callback.answer(
+            "Заявка не найдена"
+        )
+        return
+
+
+    update_status(
+        order_id,
+        "Отклонено"
+    )
+
+
+    user_id = order[1]
+
+
+    await bot.send_message(
+        user_id,
+        "❌ Ваша заявка отклонена.\n\n"
+        "Если произошла ошибка — "
+        "обратитесь в поддержку."
+    )
+
+
+    await callback.message.edit_caption(
+        caption=(
+            callback.message.caption
+            + "\n\n"
+            "❌ ЗАЯВКА ОТКЛОНЕНА"
+        )
+    )
+
+
+    await callback.answer()
+
+
+# ======================================
 # ЗАПУСК
 # ======================================
 
