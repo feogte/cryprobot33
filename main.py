@@ -158,37 +158,45 @@ async def check_handler(message: Message):
 
     user_id = message.from_user.id
 
-
-    # ищем последнюю заявку пользователя
-    order_id = None
-
-    # упрощённая версия:
-    # позже можно добавить полноценный поиск
+    order = get_last_user_order(user_id)
 
 
-    if order_id is None:
+    if not order:
 
         await message.answer(
             "❌ Сначала создайте заявку на покупку."
         )
-
         return
 
 
+    order_id = order[0]
 
-# ======================================
-# ОТЗЫВЫ
-# ======================================
 
-@dp.message(F.text == "⭐ Отзывы")
-async def reviews(message: Message):
+    add_check(
+        order_id,
+        message.photo[-1].file_id
+    )
+
 
     await message.answer(
-        "Отзывы вы можете посмотреть, "
-        "нажав на кнопку ниже.",
-        reply_markup=reviews_button(
-            REVIEWS_CHANNEL
-        )
+        "✅ Чек получен.\n\n"
+        "Заявка отправлена владельцу.\n"
+        "Ожидайте одобрения."
+    )
+
+
+    await bot.send_photo(
+        ADMIN_ID,
+        message.photo[-1].file_id,
+        caption=(
+            "🔔 Новая заявка!\n\n"
+            f"ID заявки: {order_id}\n"
+            f"Пользователь: @{message.from_user.username}\n"
+            f"Криптовалюта: {order[3]}\n"
+            f"Количество: {order[4]}\n"
+            f"Сумма: {order[5]}₽"
+        ),
+        reply_markup=admin_order_buttons(order_id)
     )
 
 
