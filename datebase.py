@@ -151,3 +151,30 @@ def get_stats():
     conn.close()
 
     return result
+
+
+# ======================================
+# ПОЛУЧЕНИЕ ПОСЛЕДНЕЙ ЗАЯВКИ ПОЛЬЗОВАТЕЛЯ
+# ======================================
+
+def get_last_user_order(user_id):
+
+    conn = sqlite3.connect("orders.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM orders
+    WHERE user_id = ?
+    ORDER BY id DESC
+    LIMIT 1
+    """,
+    (
+        user_id,
+    ))
+
+    order = cursor.fetchone()
+
+    conn.close()
+
+    return order
